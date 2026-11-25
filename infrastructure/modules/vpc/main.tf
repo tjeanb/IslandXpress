@@ -22,9 +22,7 @@ resource "aws_subnet" "public" {
   availability_zone = each.key
   map_public_ip_on_launch = true
 
-  tags = {
-  Name = "${var.environment_name}-public-${each.key}"
-  }
+ tags = merge(var.tags, {Name = "${var.environment_name}-public-${each.key}"})
 }
 
 resource "aws_subnet" "private_app" {
@@ -34,9 +32,7 @@ resource "aws_subnet" "private_app" {
   availability_zone = each.key
   map_public_ip_on_launch = false
 
-  tags = {
-  Name = "${var.environment_name}-private-app-${each.key}"
-  }
+  tags = merge(var.tags, {Name = "${var.environment_name}-private-app-${each.key}"})
 }
 
 resource "aws_subnet" "private_db" {
@@ -46,9 +42,7 @@ resource "aws_subnet" "private_db" {
   availability_zone = each.key
   map_public_ip_on_launch = false
 
-  tags = {
-  Name = "${var.environment_name}-private-db-${each.key}"
-  }
+  tags = merge(var.tags, {Name = "${var.environment_name}-private-db-${each.key}"})
 }
 
 resource "aws_eip" "nat" {
@@ -58,6 +52,9 @@ resource "aws_eip" "nat" {
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
   subnet_id = values(aws_subnet.public)[0].id
+
+  depends_on = [ aws_internet_gateway.igw ]
+
   tags = merge(var.tags, {Name = "${var.environment_name}-nat"})
 }
 
