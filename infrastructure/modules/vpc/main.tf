@@ -22,7 +22,10 @@ resource "aws_subnet" "public" {
   availability_zone = each.key
   map_public_ip_on_launch = true
 
- tags = merge(var.tags, {Name = "${var.environment_name}-public-${each.key}"})
+ tags = merge(var.tags, {
+  Name = "${var.environment_name}-public-${each.key}"
+  "kubernetes.io/role/elb" = "1"
+ })
 }
 
 resource "aws_subnet" "private_app" {
@@ -32,7 +35,10 @@ resource "aws_subnet" "private_app" {
   availability_zone = each.key
   map_public_ip_on_launch = false
 
-  tags = merge(var.tags, {Name = "${var.environment_name}-private-app-${each.key}"})
+  tags = merge(var.tags, {
+    Name = "${var.environment_name}-private-app-${each.key}"
+    "kubernetes.io/role/internal-elb" = "1"
+    })
 }
 
 resource "aws_subnet" "private_db" {
